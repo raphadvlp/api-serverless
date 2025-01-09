@@ -55,12 +55,14 @@ export default (req, res) => {
     expiresIn: REFRESH_TOKEN_EXPIRATION,
   });
 
-  // Calcula o tempo de expiração em formato UNIX timestamp para o access token
+  // Calcula o tempo de expiração do access token em segundos
   const access_token_expiration = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hora
+  const access_token_expires_in = 60 * 60; // Expiração do access token em segundos (1 hora)
 
-  // Calcula o tempo de expiração em formato UNIX timestamp para o refresh token
+  // Calcula o tempo de expiração do refresh token em segundos
   const refresh_token_expiration =
     Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 dias
+  const refresh_token_expires_in = 60 * 60 * 24 * 30; // Expiração do refresh token em segundos (30 dias)
 
   res.status(200).json({
     message: "Login realizado com sucesso!",
@@ -68,5 +70,7 @@ export default (req, res) => {
     refresh_token,
     access_token_expiration, // Tempo de expiração do access token em segundos
     refresh_token_expiration, // Tempo de expiração do refresh token em segundos
+    access_token_expires_in, // Tempo de expiração do access token (em segundos)
+    refresh_token_expires_in, // Tempo de expiração do refresh token (em segundos)
   });
 };
