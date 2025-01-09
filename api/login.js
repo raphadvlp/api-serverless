@@ -8,14 +8,26 @@ const users = [
 
 const SECRET_KEY = "minha_chave_secreta";
 const REFRESH_SECRET_KEY = "minha_chave_secreta_refresh"; // Chave secreta para o refresh token
+const TOKEN_EXPIRATION = "1h"; // Expiração do access token
+const REFRESH_TOKEN_EXPIRATION = "30d"; // Expiração do refresh token
 
 export default (req, res) => {
+  // Configuração de CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Trata requisição OPTIONS (Preflight do CORS)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Método não permitido" });
   }
 
-  // Verifique o req.query para Query Parameters
-  const { login, password } = req.query;
+  // Suporte para Query Parameters ou JSON Body
+  const { login, password } = req.query || req.body;
 
   if (!login || !password) {
     return res
@@ -35,20 +47,26 @@ export default (req, res) => {
 
   // Gera o access token (1 hora de expiração)
   const access_token = jwt.sign({ id: user.id }, SECRET_KEY, {
-    expiresIn: "1h",
+    expiresIn: TOKEN_EXPIRATION,
   });
 
   // Gera o refresh token (30 dias de expiração)
   const refresh_token = jwt.sign({ id: user.id }, REFRESH_SECRET_KEY, {
-    expiresIn: "30d",
+    expiresIn: REFRESH_TOKEN_EXPIRATION,
   });
 
-  // Retorna ambos os tokens
+  // Calcula o tempo de expiração em formato UNIX timestamp para o access token
+  const access_token_expiration = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hora
+
+  // Calcula o tempo de expiração em formato UNIX timestamp para o refresh token
+  const refresh_token_expiration =
+    Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 dias
+
   res.status(200).json({
     message: "Login realizado com sucesso!",
     access_token,
     refresh_token,
-    expires_in: "1h", // tempo de expiração do access token
-    refresh_expires_in: "30d", // tempo de expiração do refresh token
+    access_token_expiration, // Tempo de expiração do access token em segundos
+    refresh_token_expiration, // Tempo de expiração do refresh token em segundos
   });
 };
