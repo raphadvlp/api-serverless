@@ -13,7 +13,14 @@ export default (req, res) => {
     return res.status(405).json({ message: "Método não permitido" });
   }
 
-  const { login, password } = req.body;
+  // Verifique o req.query para Query Parameters
+  const { login, password } = req.query;
+
+  if (!login || !password) {
+    return res
+      .status(400)
+      .json({ message: "Login e Password são obrigatórios!" });
+  }
 
   const user = users.find((u) => u.login === login);
   if (!user) {
