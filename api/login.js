@@ -9,12 +9,22 @@ const users = [
 const SECRET_KEY = "minha_chave_secreta";
 
 export default (req, res) => {
+  // Configuração de CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Trata requisição OPTIONS (Preflight do CORS)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Método não permitido" });
   }
 
-  // Verifique o req.query para Query Parameters
-  const { login, password } = req.query;
+  // Suporte para Query Parameters ou JSON Body
+  const { login, password } = req.query || req.body;
 
   if (!login || !password) {
     return res
