@@ -7,6 +7,7 @@ const users = [
 ];
 
 const SECRET_KEY = "minha_chave_secreta";
+const TOKEN_EXPIRATION = "1h"; // Expiração do token
 
 export default (req, res) => {
   // Configuração de CORS
@@ -42,6 +43,17 @@ export default (req, res) => {
     return res.status(401).json({ message: "Senha inválida!" });
   }
 
-  const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
-  res.status(200).json({ message: "Login realizado com sucesso!", token });
+  // Gera o token JWT com tempo de expiração
+  const token = jwt.sign({ id: user.id }, SECRET_KEY, {
+    expiresIn: TOKEN_EXPIRATION,
+  });
+
+  // Calcula o tempo de expiração em formato UNIX timestamp
+  const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hora
+
+  res.status(200).json({
+    message: "Login realizado com sucesso!",
+    access_token: token,
+    expire: expirationTime, // Tempo de expiração em segundos
+  });
 };
