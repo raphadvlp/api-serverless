@@ -2,8 +2,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const users = [
-  { id: 1, login: "rapha", password: bcrypt.hashSync("123", 8) },
-  { id: 2, login: "user2", password: bcrypt.hashSync("123", 8) },
+  { id: 1, username: "rapha", password: bcrypt.hashSync("123", 8) },
+  { id: 2, username: "user2", password: bcrypt.hashSync("123", 8) },
 ];
 
 const SECRET_KEY = "minha_chave_secreta";
@@ -37,12 +37,14 @@ export default (req, res) => {
 
   const user = users.find((u) => u.login === login);
   if (!user) {
-    return res.status(404).json({ message: "Usuário não encontrado!" });
+    // return res.status(404).json({ message: "Usuário não encontrado!" });
+    return res.status(404).json({ message: "Usuário ou Senha inválida!" });
   }
 
   const isPasswordValid = bcrypt.compareSync(password, user.password);
   if (!isPasswordValid) {
-    return res.status(401).json({ message: "Senha inválida!" });
+    // return res.status(401).json({ message: "Senha inválida!" });
+    return res.status(401).json({ message: "Usuário ou Senha inválida!" });
   }
 
   // Gera o access token (1 hora de expiração)
